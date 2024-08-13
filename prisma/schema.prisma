@@ -1,0 +1,146 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "mongodb"
+    url      = env("DATABASE_URL")
+}
+
+model User {
+    id         String      @id @default(auto()) @map("_id") @db.ObjectId
+    email      String      @unique
+    password   String
+    name       String
+    role       Role
+    clientId   String      @unique @db.ObjectId
+    orders     Order[]
+    coupons    Coupon[]
+    couponUses CouponUse[]
+    orderCount OrderCount?
+}
+
+enum Role {
+    USER
+    ADMIN
+}
+
+model Order {
+    id              String           @id @default(auto()) @map("_id") @db.ObjectId
+    clientId        String           @db.ObjectId
+    total           Float
+    couponId        String?          @db.ObjectId
+    deliveryMethod  String
+    deliveryAddress String?         
+    deliveryFee     Float?
+    createdAt       DateTime         @default(now())
+    updatedAt       DateTime         @updatedAt
+    products        OrderProduct[]
+    sizeId          String?          @db.ObjectId 
+    creamId         String?          @db.ObjectId 
+    fruits          FruitOnOrder[]   
+    toppings        ToppingOnOrder[]
+    status          String           @default("Aguardando confirmação")
+    coupon          Coupon?          @relation(fields: [couponId], references: [id])
+    user            User?            @relation(fields: [clientId], references: [clientId])
+    size            Size?            @relation(fields: [sizeId], references: [id])
+    cream           Cream?           @relation(fields: [creamId], references: [id])
+}
+
+model FruitOnOrder {
+    id      String @id @default(auto()) @map("_id") @db.ObjectId
+    fruitId String
+    orderId String @db.ObjectId
+    price   Float
+    fruit   Fruit  @relation(fields: [fruitId], references: [id])
+    order   Order  @relation(fields: [orderId], references: [id])
+}
+model Fruit {
+    id           String         @id @default(auto()) @map("_id") @db.ObjectId
+    name         String
+    price        Float
+    FruitOnOrder FruitOnOrder[]
+}
+
+
+model ToppingOnOrder {
+    id        String  @id @default(auto()) @map("_id") @db.ObjectId
+    toppingId String
+    orderId   String  @db.ObjectId
+    price     Float
+    isFree    Boolean
+    topping   Topping @relation(fields: [toppingId], references: [id])
+    order     Order   @relation(fields: [orderId], references: [id])
+}
+
+
+model Topping {
+    id             String           @id @default(auto()) @map("_id") @db.ObjectId
+    name           String
+    price          Float
+    ToppingOnOrder ToppingOnOrder[]
+}
+
+model Size {
+    id          String        @id @default(auto()) @map("_id") @db.ObjectId
+    name        String
+    volume      Int
+    price       Float
+    Orders      Order[]      
+}
+
+model Cream {
+    id          String        @id @default(auto()) @map("_id") @db.ObjectId
+    name        String
+    price       Float
+    Orders      Order[]      
+}
+
+model OrderProduct {
+    id        String  @id @default(auto()) @map("_id") @db.ObjectId
+    orderId   String  @db.ObjectId
+    productId String  @db.ObjectId
+    quantity  Int
+    price     Float
+    order     Order   @relation(fields: [orderId], references: [id])
+    product   Product @relation(fields: [productId], references: [id])
+}
+
+model Coupon {
+    id         String      @id @default(auto()) @map("_id") @db.ObjectId
+    code       String      @unique
+    discount   Float
+    redeemable Boolean     @default(false)
+    createdAt  DateTime    @default(now())
+    updatedAt  DateTime    @updatedAt
+    orders     Order[]
+    couponUses CouponUse[]
+    user       User?       @relation(fields: [userId], references: [id])
+    userId     String?     @db.ObjectId
+}
+
+model OrderCount {
+    clientId String @id @map("_id") @db.ObjectId
+    count    Int
+    user     User   @relation(fields: [clientId], references: [clientId])
+}
+
+model CouponUse {
+    id       String   @id @default(auto()) @map("_id") @db.ObjectId
+    couponId String   @db.ObjectId
+    clientId String   @db.ObjectId
+    usedAt   DateTime @default(now())
+    coupon   Coupon   @relation(fields: [couponId], references: [id])
+    client   User     @relation(fields: [clientId], references: [clientId])
+}
+
+model Product {
+    id            String         @id @default(auto()) @map("_id") @db.ObjectId
+    name          String
+    description   String
+    ingredients   String
+    isFreeProduct Boolean        @default(false)
+    price         Float
+    available     Boolean        @default(true)
+    orderProducts OrderProduct[]
+}
