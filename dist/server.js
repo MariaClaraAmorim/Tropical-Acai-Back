@@ -3885,8 +3885,13 @@ var initializeWebSocket = (server) => {
 };
 var broadcastOrder = (order) => {
   if (wss) {
+    if (!order || !order.id || !order.status) {
+      console.error("Order data is incomplete:", order);
+      return;
+    }
     wss.clients.forEach((client) => {
       if (client.readyState === import_websocket.default.OPEN) {
+        console.log("Broadcasting order:", order);
         client.send(JSON.stringify({ type: "new_order", order }), (err) => {
           if (err) {
             console.error("Error sending message:", err);

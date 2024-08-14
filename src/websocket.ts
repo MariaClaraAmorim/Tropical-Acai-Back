@@ -29,8 +29,14 @@ export const initializeWebSocket = (server: any) => {
 
 export const broadcastOrder = (order: any) => {
     if (wss) {
+        if (!order || !order.id || !order.status) {
+            console.error('Order data is incomplete:', order);
+            return;
+        }
+
         wss.clients.forEach((client: WebSocket) => {
             if (client.readyState === WebSocket.OPEN) {
+                console.log('Broadcasting order:', order);
                 client.send(JSON.stringify({ type: 'new_order', order }), (err) => {
                     if (err) {
                         console.error('Error sending message:', err);
