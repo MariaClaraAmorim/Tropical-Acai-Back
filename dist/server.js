@@ -3671,6 +3671,7 @@ var findUserByEmail = async (email) => {
 // src/controllers/authController.ts
 var import_bson = require("bson");
 var import_jsonwebtoken = __toESM(require("jsonwebtoken"));
+var import_client2 = require("@prisma/client");
 var JWT_SECRET = process.env.JWT_SECRET;
 var login = async (request, reply) => {
   const { email, password } = request.body;
@@ -3695,7 +3696,7 @@ var login = async (request, reply) => {
   }
 };
 var register = async (request, reply) => {
-  const { email, password, name, role } = request.body;
+  const { email, password, name, role = import_client2.Role.USER } = request.body;
   console.log("Register attempt:", { email, password, name, role });
   try {
     const existingUser = await findUserByEmail(email);
@@ -3715,8 +3716,8 @@ var register = async (request, reply) => {
 };
 
 // src/controllers/productController.ts
-var import_client2 = require("@prisma/client");
-var prisma2 = new import_client2.PrismaClient();
+var import_client3 = require("@prisma/client");
+var prisma2 = new import_client3.PrismaClient();
 var createProduct = async (request, reply) => {
   const { name, description, ingredients, price, available } = request.body;
   try {
@@ -3810,7 +3811,7 @@ var deleteProduct = async (request, reply) => {
 };
 
 // src/controllers/orderController.ts
-var import_client3 = require("@prisma/client");
+var import_client4 = require("@prisma/client");
 
 // src/service/addressService.ts
 var import_axios = __toESM(require("axios"));
@@ -3898,7 +3899,7 @@ var broadcastOrder = (order) => {
 };
 
 // src/controllers/orderController.ts
-var prisma3 = new import_client3.PrismaClient();
+var prisma3 = new import_client4.PrismaClient();
 var placeOrder = async (request, reply) => {
   const {
     clientId,
@@ -4206,8 +4207,8 @@ var finalizeOrder = async (request, reply) => {
 };
 
 // src/models/prisma.ts
-var import_client4 = require("@prisma/client");
-var prisma4 = new import_client4.PrismaClient();
+var import_client5 = require("@prisma/client");
+var prisma4 = new import_client5.PrismaClient();
 var prisma_default = prisma4;
 
 // src/controllers/couponController.ts
@@ -4274,8 +4275,8 @@ var applyCoupon = async (request, reply) => {
 };
 
 // src/controllers/customController.ts
-var import_client5 = require("@prisma/client");
-var prisma5 = new import_client5.PrismaClient();
+var import_client6 = require("@prisma/client");
+var prisma5 = new import_client6.PrismaClient();
 var createFruit = async (request, reply) => {
   const { name, price } = request.body;
   try {

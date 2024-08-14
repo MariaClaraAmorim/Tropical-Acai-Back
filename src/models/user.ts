@@ -1,5 +1,5 @@
+import { Role } from '@prisma/client';
 import { prisma } from '../prismaClient';
-import { Role } from '../types';
 
 export const createUser = async (email: string, password: string, name: string, role: Role, clientId: string) => {
     return await prisma.user.create({

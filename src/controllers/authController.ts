@@ -3,7 +3,7 @@ import bcrypt from 'bcrypt';
 import { createUser, findUserByEmail } from '../models/user';
 import { ObjectId } from 'bson';
 import jwt from 'jsonwebtoken';
-import { Role } from '../types';
+import { Role } from '@prisma/client';
 
 const JWT_SECRET = process.env.JWT_SECRET!;
 
@@ -35,7 +35,6 @@ export const login = async (request: FastifyRequest, reply: FastifyReply) => {
 };
 
 export const register = async (request: FastifyRequest, reply: FastifyReply) => {
-    // Definindo um valor padrão para o role caso não seja fornecido
     const { email, password, name, role = Role.USER } = request.body as { email: string; password: string; name: string; role: Role };
 
     console.log('Register attempt:', { email, password, name, role });
