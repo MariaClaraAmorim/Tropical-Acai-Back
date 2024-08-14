@@ -3939,6 +3939,7 @@ var placeOrder = async (request, reply) => {
     const order = await prisma3.order.create({
       data: {
         clientId,
+        clientName,
         total: finalTotal,
         deliveryMethod,
         deliveryAddress: deliveryAddress ? JSON.stringify(deliveryAddress) : null,

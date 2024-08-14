@@ -107,6 +107,7 @@ export const placeOrder = async (request: FastifyRequest<{ Body: CreateOrderPayl
         const order = await prisma.order.create({
             data: {
                 clientId,
+                clientName,
                 total: finalTotal,
                 deliveryMethod,
                 deliveryAddress: deliveryAddress ? JSON.stringify(deliveryAddress) : null,

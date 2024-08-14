@@ -26,19 +26,20 @@ enum Role {
 }
 
 model Order {
-    id              String           @id @default(auto()) @map("_id") @db.ObjectId
-    clientId        String           @db.ObjectId
+    id         String @id @default(auto()) @map("_id") @db.ObjectId
+    clientId   String @db.ObjectId
+    clientName String // Novo campo para armazenar o nome do cliente
     total           Float
     couponId        String?          @db.ObjectId
     deliveryMethod  String
-    deliveryAddress String?         
+    deliveryAddress String?
     deliveryFee     Float?
     createdAt       DateTime         @default(now())
     updatedAt       DateTime         @updatedAt
     products        OrderProduct[]
-    sizeId          String?          @db.ObjectId 
-    creamId         String?          @db.ObjectId 
-    fruits          FruitOnOrder[]   
+    sizeId          String?          @db.ObjectId
+    creamId         String?          @db.ObjectId
+    fruits          FruitOnOrder[]
     toppings        ToppingOnOrder[]
     status          String           @default("Aguardando confirmação")
     coupon          Coupon?          @relation(fields: [couponId], references: [id])
@@ -55,13 +56,13 @@ model FruitOnOrder {
     fruit   Fruit  @relation(fields: [fruitId], references: [id])
     order   Order  @relation(fields: [orderId], references: [id])
 }
+
 model Fruit {
     id           String         @id @default(auto()) @map("_id") @db.ObjectId
     name         String
     price        Float
     FruitOnOrder FruitOnOrder[]
 }
-
 
 model ToppingOnOrder {
     id        String  @id @default(auto()) @map("_id") @db.ObjectId
@@ -73,7 +74,6 @@ model ToppingOnOrder {
     order     Order   @relation(fields: [orderId], references: [id])
 }
 
-
 model Topping {
     id             String           @id @default(auto()) @map("_id") @db.ObjectId
     name           String
@@ -82,18 +82,18 @@ model Topping {
 }
 
 model Size {
-    id          String        @id @default(auto()) @map("_id") @db.ObjectId
-    name        String
-    volume      Int
-    price       Float
-    Orders      Order[]      
+    id     String  @id @default(auto()) @map("_id") @db.ObjectId
+    name   String
+    volume Int
+    price  Float
+    Orders Order[]
 }
 
 model Cream {
-    id          String        @id @default(auto()) @map("_id") @db.ObjectId
-    name        String
-    price       Float
-    Orders      Order[]      
+    id     String  @id @default(auto()) @map("_id") @db.ObjectId
+    name   String
+    price  Float
+    Orders Order[]
 }
 
 model OrderProduct {
