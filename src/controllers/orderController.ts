@@ -81,6 +81,17 @@ export const placeOrder = async (request: FastifyRequest<{ Body: CreateOrderPayl
     }
 
     try {
+        // Obter o nome do cliente a partir do ID
+        const user = await prisma.user.findUnique({
+            where: { id: clientId },
+            select: { name: true } // Seleciona apenas o campo name
+        });
+
+        if (!user) {
+            return reply.code(404).send({ error: 'Client not found' });
+        }
+
+        const clientName = user.name; // Nome do cliente
 
         let deliveryFee = 0;
         if (deliveryMethod === 'delivery' && deliveryAddress?.cep) {
@@ -135,7 +146,7 @@ export const placeOrder = async (request: FastifyRequest<{ Body: CreateOrderPayl
         });
 
         // Notificar todos os clientes conectados
-        broadcastOrder(order);
+        broadcastOrder({ ...order, clientName });
 
         reply.code(201).send(order);
     } catch (error) {
