@@ -35,7 +35,8 @@ export const login = async (request: FastifyRequest, reply: FastifyReply) => {
 };
 
 export const register = async (request: FastifyRequest, reply: FastifyReply) => {
-    const { email, password, name, role } = request.body as { email: string; password: string; name: string; role: Role };
+    // Definindo um valor padrão para o role caso não seja fornecido
+    const { email, password, name, role = Role.USER } = request.body as { email: string; password: string; name: string; role: Role };
 
     console.log('Register attempt:', { email, password, name, role });
 
