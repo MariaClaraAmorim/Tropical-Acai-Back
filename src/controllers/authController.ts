@@ -27,6 +27,7 @@ export const login = async (request: FastifyRequest, reply: FastifyReply) => {
             token,
             clientId: user.id,
             userType: user.role,
+            name: user.name,
         });
     } catch (error) {
         console.error('Error in login:', error);

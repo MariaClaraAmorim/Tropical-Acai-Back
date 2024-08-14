@@ -3688,7 +3688,8 @@ var login = async (request, reply) => {
     reply.send({
       token,
       clientId: user.id,
-      userType: user.role
+      userType: user.role,
+      name: user.name
     });
   } catch (error) {
     console.error("Error in login:", error);
@@ -3920,13 +3921,6 @@ var placeOrder = async (request, reply) => {
     return reply.code(400).send({ error: "CEP and n\xFAmero are required for delivery orders" });
   }
   try {
-    const client = await prisma3.user.findUnique({
-      where: { id: clientId },
-      select: { name: true }
-    });
-    if (!client) {
-      return reply.code(404).send({ error: "Client not found" });
-    }
     let deliveryFee = 0;
     if (deliveryMethod === "delivery" && deliveryAddress?.cep) {
       deliveryFee = await calculateDeliveryFeeFromCep(deliveryAddress.cep);
@@ -3973,13 +3967,8 @@ var placeOrder = async (request, reply) => {
         coupon: true
       }
     });
-    const orderWithClientName = {
-      ...order,
-      clientName: client.name
-    };
-    console.log("Order created successfully:", orderWithClientName);
-    broadcastOrder(orderWithClientName);
-    reply.code(201).send(orderWithClientName);
+    broadcastOrder(order);
+    reply.code(201).send(order);
   } catch (error) {
     console.error("Error placing order:", error);
     reply.code(500).send({ error: "Internal Server Error" });
