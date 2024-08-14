@@ -3680,8 +3680,8 @@ var login = async (request, reply) => {
     const user = await findUserByEmail(email);
     console.log("User found:", user);
     if (!user || !await import_bcrypt.default.compare(password, user.password)) {
-      console.log("Invalid email or password");
-      return reply.code(401).send({ message: "Invalid email or password" });
+      console.log("E-mail ou senha invalidos");
+      return reply.code(401).send({ message: "E-mail ou senha invalidos" });
     }
     const token = import_jsonwebtoken.default.sign({ userId: user.id, role: user.role }, JWT_SECRET, { expiresIn: "1h" });
     console.log("Token generated:", token);
@@ -3701,8 +3701,8 @@ var register = async (request, reply) => {
   try {
     const existingUser = await findUserByEmail(email);
     if (existingUser) {
-      console.log("Email already exists:", email);
-      return reply.code(400).send({ error: "Email already exists" });
+      console.log("E-mail j\xE1 existe. Tente outro:", email);
+      return reply.code(400).send({ error: "E-mail j\xE1 existe. Tente outro" });
     }
     const hashedPassword = await import_bcrypt.default.hash(password, 10);
     const clientId = new import_bson.ObjectId().toHexString();
@@ -3920,6 +3920,13 @@ var placeOrder = async (request, reply) => {
     return reply.code(400).send({ error: "CEP and n\xFAmero are required for delivery orders" });
   }
   try {
+    const client = await prisma3.user.findUnique({
+      where: { id: clientId },
+      select: { name: true }
+    });
+    if (!client) {
+      return reply.code(404).send({ error: "Client not found" });
+    }
     let deliveryFee = 0;
     if (deliveryMethod === "delivery" && deliveryAddress?.cep) {
       deliveryFee = await calculateDeliveryFeeFromCep(deliveryAddress.cep);
@@ -3966,9 +3973,13 @@ var placeOrder = async (request, reply) => {
         coupon: true
       }
     });
-    console.log("Order created successfully:", order);
-    broadcastOrder(order);
-    reply.code(201).send(order);
+    const orderWithClientName = {
+      ...order,
+      clientName: client.name
+    };
+    console.log("Order created successfully:", orderWithClientName);
+    broadcastOrder(orderWithClientName);
+    reply.code(201).send(orderWithClientName);
   } catch (error) {
     console.error("Error placing order:", error);
     reply.code(500).send({ error: "Internal Server Error" });

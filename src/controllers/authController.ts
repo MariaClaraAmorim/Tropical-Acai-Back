@@ -16,8 +16,8 @@ export const login = async (request: FastifyRequest, reply: FastifyReply) => {
         console.log('User found:', user);
 
         if (!user || !(await bcrypt.compare(password, user.password))) {
-            console.log('Invalid email or password');
-            return reply.code(401).send({ message: 'Invalid email or password' });
+            console.log('E-mail ou senha invalidos');
+            return reply.code(401).send({ message: 'E-mail ou senha invalidos' });
         }
 
         const token = jwt.sign({ userId: user.id, role: user.role }, JWT_SECRET, { expiresIn: '1h' });
@@ -42,8 +42,8 @@ export const register = async (request: FastifyRequest, reply: FastifyReply) => 
     try {
         const existingUser = await findUserByEmail(email);
         if (existingUser) {
-            console.log('Email already exists:', email);
-            return reply.code(400).send({ error: "Email already exists" });
+            console.log('E-mail já existe. Tente outro:', email);
+            return reply.code(400).send({ error: "E-mail já existe. Tente outro" });
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);

@@ -81,6 +81,16 @@ export const placeOrder = async (request: FastifyRequest<{ Body: CreateOrderPayl
     }
 
     try {
+
+        const client = await prisma.user.findUnique({
+            where: { id: clientId },
+            select: { name: true },
+        });
+
+        if (!client) {
+            return reply.code(404).send({ error: 'Client not found' });
+        }
+
         let deliveryFee = 0;
         if (deliveryMethod === 'delivery' && deliveryAddress?.cep) {
             deliveryFee = await calculateDeliveryFeeFromCep(deliveryAddress.cep);
@@ -133,12 +143,18 @@ export const placeOrder = async (request: FastifyRequest<{ Body: CreateOrderPayl
             }
         });
 
-        console.log('Order created successfully:', order);
+        // Adicionando o nome do cliente ao pedido
+        const orderWithClientName = {
+            ...order,
+            clientName: client.name
+        };
+
+        console.log('Order created successfully:', orderWithClientName);
 
         // Notificar todos os clientes conectados
-        broadcastOrder(order);
+        broadcastOrder(orderWithClientName);
 
-        reply.code(201).send(order);
+        reply.code(201).send(orderWithClientName);
     } catch (error) {
         console.error('Error placing order:', error);
         reply.code(500).send({ error: 'Internal Server Error' });
