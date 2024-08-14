@@ -3921,6 +3921,15 @@ var placeOrder = async (request, reply) => {
     return reply.code(400).send({ error: "CEP and n\xFAmero are required for delivery orders" });
   }
   try {
+    const user = await prisma3.user.findUnique({
+      where: { id: clientId },
+      select: { name: true }
+      // Seleciona apenas o campo name
+    });
+    if (!user) {
+      return reply.code(404).send({ error: "Client not found" });
+    }
+    const clientName = user.name;
     let deliveryFee = 0;
     if (deliveryMethod === "delivery" && deliveryAddress?.cep) {
       deliveryFee = await calculateDeliveryFeeFromCep(deliveryAddress.cep);
@@ -3967,7 +3976,7 @@ var placeOrder = async (request, reply) => {
         coupon: true
       }
     });
-    broadcastOrder(order);
+    broadcastOrder({ ...order, clientName });
     reply.code(201).send(order);
   } catch (error) {
     console.error("Error placing order:", error);
