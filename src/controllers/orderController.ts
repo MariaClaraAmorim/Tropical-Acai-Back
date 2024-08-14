@@ -82,15 +82,6 @@ export const placeOrder = async (request: FastifyRequest<{ Body: CreateOrderPayl
 
     try {
 
-        const client = await prisma.user.findUnique({
-            where: { id: clientId },
-            select: { name: true },
-        });
-
-        if (!client) {
-            return reply.code(404).send({ error: 'Client not found' });
-        }
-
         let deliveryFee = 0;
         if (deliveryMethod === 'delivery' && deliveryAddress?.cep) {
             deliveryFee = await calculateDeliveryFeeFromCep(deliveryAddress.cep);
@@ -143,18 +134,10 @@ export const placeOrder = async (request: FastifyRequest<{ Body: CreateOrderPayl
             }
         });
 
-        // Adicionando o nome do cliente ao pedido
-        const orderWithClientName = {
-            ...order,
-            clientName: client.name
-        };
-
-        console.log('Order created successfully:', orderWithClientName);
-
         // Notificar todos os clientes conectados
-        broadcastOrder(orderWithClientName);
+        broadcastOrder(order);
 
-        reply.code(201).send(orderWithClientName);
+        reply.code(201).send(order);
     } catch (error) {
         console.error('Error placing order:', error);
         reply.code(500).send({ error: 'Internal Server Error' });
@@ -202,7 +185,6 @@ export async function incrementOrderCountAndApplyCoupon(clientId: string, coupon
 
     return { discount, couponId };
 }
-
 
 export const getOrderCount = async (request: FastifyRequest<{ Params: { clientId: string } }>, reply: FastifyReply) => {
     const { clientId } = request.params;
