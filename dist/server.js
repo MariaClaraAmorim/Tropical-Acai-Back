@@ -4209,7 +4209,7 @@ var finalizeOrder = async (request, reply) => {
     if (!order) {
       return reply.code(404).send({ error: "Order not found" });
     }
-    const newStatus = order.deliveryMethod === "pickup" ? "pronto para retirada" : "saiu para entrega";
+    const newStatus = order.deliveryMethod === "retirada" ? "pronto para retirada" : "saiu para entrega";
     await prisma3.order.update({
       where: { id: orderId },
       data: { status: newStatus }

@@ -46,7 +46,7 @@ interface CreateOrderPayload {
     cream?: OrderCreamCreateInput;
     total: number;
     couponCode?: string;
-    deliveryMethod: 'pickup' | 'delivery';
+    deliveryMethod: 'retirada' | 'delivery';
     deliveryAddress?: {
         cep: string;
         logradouro: string;
@@ -447,7 +447,7 @@ export const finalizeOrder = async (request: FastifyRequest<{ Params: { orderId:
             return reply.code(404).send({ error: 'Order not found' });
         }
 
-        const newStatus = order.deliveryMethod === 'pickup' ? 'pronto para retirada' : 'saiu para entrega';
+        const newStatus = order.deliveryMethod === 'retirada' ? 'pronto para retirada' : 'saiu para entrega';
 
         // Atualiza o status para 'pronto para retirada' ou 'saiu para entrega'
         await prisma.order.update({
